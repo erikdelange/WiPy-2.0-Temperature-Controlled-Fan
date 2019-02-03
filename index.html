@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="icon" href="data:;base64,=">
+    <style>
+      label { display: inline-block; width:150px; }
+      input[type=number] { display: inline-block; width:80px; }
+    </style>
+    <title> WiPy </title>
+  </head>
+  <body>
+    <div class="w3-container">
+      <h1> Heating Fan Control </h1>
+
+      <div class="w3-panel w3-border" style="max-width:500px">
+        <h2> Status </h2>
+        <div class="w3-panel" >
+          <label class="w3-margin-bottom"> Temperature (in) </label>
+          <input class="w3-input w3-border" id="temp0" name="temp0" type="number" value="0" disabled> &#8451;
+          <br>
+          <label class="w3-margin-bottom"> Temperature (out) </label>
+          <input class="w3-input w3-border" id="temp1" name="temp1" type="number" value="0" disabled> &#8451;
+          <br>
+          <label class="w3-margin-bottom"> Dutycycle </label>
+          <input class="w3-input w3-border" id="dutycycle" name="dutycycle" type="number" value="0" disabled> %
+        </div>
+      </div>
+
+      <div class="w3-panel w3-border" style="max-width:500px">
+        <h2> Settings </h2>
+        <div class="w3-panel">
+          <label class="w3-margin-bottom"> Max dutycycle </label>
+          <input class="w3-input w3-border" id="max_dutycycle" name="max_dutycycle" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> %
+          <br>
+          <label class="w3-margin-bottom"> Min dutycycle </label>
+          <input class="w3-input w3-border" id="min_dutycycle" name="min_dutycycle" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> %
+          <br>
+          <label class="w3-margin-bottom"> Temp fan on </label>
+          <input class="w3-input w3-border" id="temp_fan_on" name="temp_fan_on" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> &#8451;
+          <br>
+          <label class="w3-margin-bottom"> Temp fan max </label>
+          <input class="w3-input w3-border" id="temp_fan_max" name="temp_fan_max" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> &#8451;
+          <br>
+          <label class="w3-margin-bottom"> Hysteresis </label>
+          <input class="w3-input w3-border" id="hysteresis" name="hysteresis" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> &#8451;
+        </div>
+      </div>
+
+      <div class="w3-panel w3-border" style="max-width:500px">
+        <input type="button" class="w3-btn w3-border w3-light-gray w3-margin w3-right" id="reset" name="reset" value="Reset" onclick="onReset(event)">
+      </div>
+
+    </div>
+    <script>
+      "use strict";
+
+      // Helper functions for fetch()
+      function validateResponse(response) {
+        if (!response.ok) {
+          return Promise.reject({
+                  status: response.status,
+                  statusText: response.statusText
+          });
+        }
+        return response;
+      }
+
+      function readResponseAsJSON(response) {
+        return response.json();
+      }
+
+      function readResponseAsBlob(response) {
+        return response.blob();
+      }
+
+      function readResponseAsText(response) {
+        return response.text();
+      }
+
+      function logError(error) {
+        console.log("fetch error:", error);
+      }
+
+      function statusRefresh() {
+        // Reload status information
+        fetch("/api/status")
+          .then(validateResponse)
+          .then(readResponseAsJSON)
+          .then(data => {
+            console.log("/api/status data:", data);
+            for (var key in data) {
+              document.getElementById(key).value = data[key];
+            }
+          })
+          .catch(logError);
+      }
+
+      function onReset() {
+        fetch("/api/reset")
+          .then(validateResponse)
+          .catch(logError);
+      }
+
+      function onInputEvent(event) {
+        // Send changed settings to the server
+        var element = event.target;
+        fetch("/api/set?".concat(element.name, "=", element.value))
+          .then(validateResponse)
+          .then(readResponseAsJSON)
+          .then(data => {
+            console.log("/api/set data:", data);
+          })
+          .catch(logError);
+      }
+
+      function onLoadEvent() {
+        // Load initial data
+        fetch("/api/init")
+          .then(validateResponse)
+          .then(readResponseAsJSON)
+          .then(data => {
+            console.log("/api/init data:", data);
+            for (var key in data) {
+              document.getElementById(key).value = data[key];
+            }
+          })
+          .catch(logError);
+
+        // Refresh status every 30 seconds
+        setInterval(statusRefresh, 30000);
+      }
+
+      window.onload = onLoadEvent();
+    </script>
+  </body>
+</html>
