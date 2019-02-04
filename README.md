@@ -28,6 +28,8 @@ The fans are controlled by a daemon process (*daemon()*) which measures the temp
 ### Hardware
 The heart of the controller is a WiPy 2.0. Attached are two (or at least one) DS18x20 temperature sensors. One measures the temperature of the incoming water, the other one of the outgoing water. Pycom's library *onewire.py* is used to retrieve the readings from these sensors, which are connected to P21. The WiPy's PWM API is used to control the speed of PWM controlled computer case fans (I've used Arctic PWM PST fans which have an additional connector to allow daisy chaining of up to 4 fans). A daemon process checks the temperature every 30 seconds and adjusts the fan speed. As the WiPy cannot drive a PWM fan directly (3V3 vs 5V) BS170 FETs are used. A fan's PWM pin expects an external open collector/drain circuit which can sink 5V. Although a BS170 can officially not be opened completely at a 3V3 gate voltage it did work OK for me. Because the Arctic documentation specifies only 4 fans can be daisy chained two PWM outputs are used (P22 and P23).
 
+![circuit.png](https://github.com/erikdelange/WiPy-2.0-Temperature-Controlled-Fan/blob/master/circuit.png)
+
 The actual PCB for this project looks like:
 
 ![pcb.png](https://github.com/erikdelange/WiPy-2.0-Temperature-Controlled-Fan/blob/master/pcb.png)
