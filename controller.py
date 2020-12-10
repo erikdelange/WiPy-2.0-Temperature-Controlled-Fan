@@ -102,91 +102,95 @@ def daemon():
 
 _thread.start_new_thread(daemon, ())
 
-serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-serversocket.bind(socket.getaddrinfo("0.0.0.0", 80)[0][-1])
-serversocket.listen()
-
-while True:
-    gc.collect()
-    print(gc.mem_free())
-
-    conn, addr = serversocket.accept()
-    request_line = conn.readline()
-
-    print("request:", request_line, "from", addr)
-
-    if request_line in [b"", b"\r\n"]:
-        # print("malformed request")
-        conn.close()
-        continue
-
-    request = url.request(request_line)
-    header = request["header"]
+try:
+    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    serversocket.bind(socket.getaddrinfo("0.0.0.0", 80)[0][-1])
+    serversocket.listen()
 
     while True:
-        line = conn.readline()
-        if line in [b"", b"\r\n"]:
-            break
+        gc.collect()
+        # print(gc.mem_free())
 
-        # add header fields to dictionary 'header'
-        semicolon = line.find(b":")
-        if semicolon != -1:
-            key = line[0:semicolon].decode("utf-8")
-            value = line[semicolon+1:-2].lstrip().decode("utf-8")
-            header[key] = value
+        conn, addr = serversocket.accept()
+        request_line = conn.readline()
 
-    conn.write("HTTP/1.1 200 OK\nServer: WiPy\n")
-    conn.write("Connection: close\nContent-Type: text/html\n\n")
+        # print("request:", request_line, "from", addr)
 
-    path = request["path"]
+        if request_line in [b"", b"\r\n"]:
+            # print("malformed request")
+            conn.close()
+            continue
 
-    if path == "/":
-        http.sendfile(conn, "index.html")
+        request = url.request(request_line)
+        header = request["header"]
 
-    if path == "/api/reset":
+        while True:
+            line = conn.readline()
+            if line in [b"", b"\r\n"]:
+                break
+
+            # add header fields to dictionary 'header'
+            semicolon = line.find(b":")
+            if semicolon != -1:
+                key = line[0:semicolon].decode("utf-8")
+                value = line[semicolon+1:-2].lstrip().decode("utf-8")
+                header[key] = value
+
+        conn.write("HTTP/1.1 200 OK\nServer: WiPy\n")
+        conn.write("Connection: close\nContent-Type: text/html\n\n")
+
+        path = request["path"]
+
+        if path == "/":
+            http.sendfile(conn, "index.html")
+
+        if path == "/api/reset":
+            conn.write("\n")
+            conn.close()
+            reset()
+
+        if path == "/api/init":
+            settings = dict()
+            with lock:
+                settings["temp0"] = max(temp0, temp1)
+                settings["temp1"] = min(temp0, temp1)
+            settings["dutycycle"] = dutycycle
+            settings["max_dutycycle"] = max_dutycycle
+            settings["min_dutycycle"] = min_dutycycle
+            settings["temp_fan_on"] = temp_fan_on
+            settings["temp_fan_max"] = temp_fan_max
+            settings["hysteresis"] = hysteresis
+            conn.write(json.dumps(settings))
+
+        if path == "/api/set":
+            parameters = request["parameters"]
+            if "max_dutycycle" in parameters:
+                max_dutycycle = int(parameters["max_dutycycle"])
+                pycom.nvs_set("max_dutycycle", max_dutycycle)
+            if "min_dutycycle" in parameters:
+                min_dutycycle = int(parameters["min_dutycycle"])
+                pycom.nvs_set("min_dutycycle", min_dutycycle)
+            if "temp_fan_on" in parameters:
+                temp_fan_on = int(parameters["temp_fan_on"])
+                pycom.nvs_set("temp_fan_on", temp_fan_on)
+            if "temp_fan_max" in parameters:
+                temp_fan_max = int(parameters["temp_fan_max"])
+                pycom.nvs_set("temp_fan_max", temp_fan_max)
+            if "hysteresis" in parameters:
+                hysteresis = int(parameters["hysteresis"])
+                pycom.nvs_set("hysteresis", hysteresis)
+            conn.write(json.dumps(parameters))
+
+        if path == "/api/status":
+            values = dict()
+            with lock:
+                values["temp0"] = max(temp0, temp1)
+                values["temp1"] = min(temp0, temp1)
+            values["dutycycle"] = dutycycle
+            conn.write(json.dumps(values))
+
         conn.write("\n")
         conn.close()
-        reset()
-
-    if path == "/api/init":
-        settings = dict()
-        with lock:
-            settings["temp0"] = max(temp0, temp1)
-            settings["temp1"] = min(temp0, temp1)
-        settings["dutycycle"] = dutycycle
-        settings["max_dutycycle"] = max_dutycycle
-        settings["min_dutycycle"] = min_dutycycle
-        settings["temp_fan_on"] = temp_fan_on
-        settings["temp_fan_max"] = temp_fan_max
-        settings["hysteresis"] = hysteresis
-        conn.write(json.dumps(settings))
-
-    if path == "/api/set":
-        parameters = request["parameters"]
-        if "max_dutycycle" in parameters:
-            max_dutycycle = int(parameters["max_dutycycle"])
-            pycom.nvs_set("max_dutycycle", max_dutycycle)
-        if "min_dutycycle" in parameters:
-            min_dutycycle = int(parameters["min_dutycycle"])
-            pycom.nvs_set("min_dutycycle", min_dutycycle)
-        if "temp_fan_on" in parameters:
-            temp_fan_on = int(parameters["temp_fan_on"])
-            pycom.nvs_set("temp_fan_on", temp_fan_on)
-        if "temp_fan_max" in parameters:
-            temp_fan_max = int(parameters["temp_fan_max"])
-            pycom.nvs_set("temp_fan_max", temp_fan_max)
-        if "hysteresis" in parameters:
-            hysteresis = int(parameters["hysteresis"])
-            pycom.nvs_set("hysteresis", hysteresis)
-        conn.write(json.dumps(parameters))
-
-    if path == "/api/status":
-        values = dict()
-        with lock:
-            values["temp0"] = max(temp0, temp1)
-            values["temp1"] = min(temp0, temp1)
-        values["dutycycle"] = dutycycle
-        conn.write(json.dumps(values))
-
-    conn.write("\n")
-    conn.close()
+except Exception as e:
+    # print("Exception", e)
+    pass
