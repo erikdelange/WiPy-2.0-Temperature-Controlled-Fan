@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="icon" href="data:;base64,=">
+    <!--link rel="icon" href="data:;base64,="-->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <style>
       label { display: inline-block; width:150px; }
       input[type=number] { display: inline-block; width:80px; }
@@ -19,30 +20,30 @@
         <h2> Status </h2>
         <div class="w3-panel" >
           <label class="w3-margin-bottom"> Temperature (in) </label>
-          <input class="w3-input w3-border" id="temp0" name="temp0" type="number" value="0" disabled> &#8451;
+          <input class="w3-input w3-border" id="temp0" name="temp0" type="number" value="0" title="Inlet temperature" disabled> &#8451;
           <br>
           <label class="w3-margin-bottom"> Temperature (out) </label>
-          <input class="w3-input w3-border" id="temp1" name="temp1" type="number" value="0" disabled> &#8451;
+          <input class="w3-input w3-border" id="temp1" name="temp1" type="number" value="0" title="Outlet temperature" disabled> &#8451;
           <br>
           <label class="w3-margin-bottom"> Dutycycle </label>
-          <input class="w3-input w3-border" id="dutycycle" name="dutycycle" type="number" value="0" disabled> %
+          <input class="w3-input w3-border" id="dutycycle" name="dutycycle" type="number" value="0" title="Current duty cycle" disabled> %
         </div>
       </div>
 
       <div class="w3-panel w3-border" style="max-width:500px">
         <h2> Settings </h2>
         <div class="w3-panel">
-          <label class="w3-margin-bottom"> Max dutycycle </label>
-          <input class="w3-input w3-border" id="max_dutycycle" name="max_dutycycle" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> %
+          <label class="w3-margin-bottom"> Start dutycycle </label>
+          <input class="w3-input w3-border" id="start_dutycycle" name="start_dutycycle" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> %
           <br>
-          <label class="w3-margin-bottom"> Min dutycycle </label>
-          <input class="w3-input w3-border" id="min_dutycycle" name="min_dutycycle" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> %
+          <label class="w3-margin-bottom"> End dutycycle </label>
+          <input class="w3-input w3-border" id="end_dutycycle" name="end_dutycycle" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> %
           <br>
           <label class="w3-margin-bottom"> Temp fan on </label>
           <input class="w3-input w3-border" id="temp_fan_on" name="temp_fan_on" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> &#8451;
           <br>
-          <label class="w3-margin-bottom"> Temp fan max </label>
-          <input class="w3-input w3-border" id="temp_fan_max" name="temp_fan_max" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> &#8451;
+          <label class="w3-margin-bottom"> Temp fan end </label>
+          <input class="w3-input w3-border" id="temp_fan_end" name="temp_fan_end" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> &#8451;
           <br>
           <label class="w3-margin-bottom"> Hysteresis </label>
           <input class="w3-input w3-border" id="hysteresis" name="hysteresis" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> &#8451;
