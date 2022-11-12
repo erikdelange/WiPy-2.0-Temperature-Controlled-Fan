@@ -1,140 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <!--link rel="icon" href="data:;base64,="-->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <style>
-      label { display: inline-block; width:150px; }
-      input[type=number] { display: inline-block; width:80px; }
-    </style>
-    <title> WiPy </title>
-  </head>
-  <body>
-    <div class="w3-container">
-      <h1> Heating Fan Control </h1>
 
-      <div class="w3-panel w3-border" style="max-width:500px">
-        <h2> Status </h2>
-        <div class="w3-panel" >
-          <label class="w3-margin-bottom"> Temperature (in) </label>
-          <input class="w3-input w3-border" id="temp0" name="temp0" type="number" value="0" title="Inlet temperature" disabled> &#8451;
-          <br>
-          <label class="w3-margin-bottom"> Temperature (out) </label>
-          <input class="w3-input w3-border" id="temp1" name="temp1" type="number" value="0" title="Outlet temperature" disabled> &#8451;
-          <br>
-          <label class="w3-margin-bottom"> Dutycycle </label>
-          <input class="w3-input w3-border" id="dutycycle" name="dutycycle" type="number" value="0" title="Current duty cycle" disabled> %
-        </div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <title> Fan </title>
+  <style>
+    label {
+      display: inline-block;
+      width: 150px;
+    }
+
+    input[type=number] {
+      display: inline-block;
+      width: 80px;
+    }
+
+    input[type=range] {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="w3-container" style="width:fit-content;">
+    <h2> Heating Fan Control </h2>
+
+    <div class="w3-panel w3-border">
+      <h3 onclick="accordion('Status')" style="cursor: pointer;"> Status </h3>
+      <div id="Status" class="w3-hide w3-show">
+        <label class="w3-margin-bottom" for="temp_in"> Temperature (in) </label>
+        <input class="w3-input w3-border" id="temp_in" type="number" value="0" title="Inlet temperature" disabled>
+        &#8451;
+        <br>
+        <label class="w3-margin-bottom" for="temp_out"> Temperature (out) </label>
+        <input class="w3-input w3-border" id="temp_out" type="number" value="0" title="Outlet temperature" disabled>
+        &#8451;
+        <br>
+        <label for="duty_cycle"> Duty cycle </label>
+        <input class="w3-input w3-border w3-margin-bottom" id="duty_cycle" type="number" value="0" title="Current duty cycle" disabled> %
       </div>
-
-      <div class="w3-panel w3-border" style="max-width:500px">
-        <h2> Settings </h2>
-        <div class="w3-panel">
-          <label class="w3-margin-bottom"> Start dutycycle </label>
-          <input class="w3-input w3-border" id="start_dutycycle" name="start_dutycycle" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> %
-          <br>
-          <label class="w3-margin-bottom"> End dutycycle </label>
-          <input class="w3-input w3-border" id="end_dutycycle" name="end_dutycycle" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> %
-          <br>
-          <label class="w3-margin-bottom"> Temp fan on </label>
-          <input class="w3-input w3-border" id="temp_fan_on" name="temp_fan_on" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> &#8451;
-          <br>
-          <label class="w3-margin-bottom"> Temp fan end </label>
-          <input class="w3-input w3-border" id="temp_fan_end" name="temp_fan_end" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> &#8451;
-          <br>
-          <label class="w3-margin-bottom"> Hysteresis </label>
-          <input class="w3-input w3-border" id="hysteresis" name="hysteresis" type="number" min="0" max="100" step="1" value="0" onchange="onInputEvent(event)"> &#8451;
-        </div>
-      </div>
-
-      <div class="w3-panel w3-border" style="max-width:500px">
-        <input type="button" class="w3-btn w3-border w3-light-gray w3-margin w3-right" id="reset" name="reset" value="Reset" onclick="onReset(event)">
-      </div>
-
     </div>
-    <script>
-      "use strict";
 
-      // Helper functions for fetch()
-      function validateResponse(response) {
-        if (!response.ok) {
-          return Promise.reject({
-                  status: response.status,
-                  statusText: response.statusText
-          });
+    <div class="w3-panel w3-border">
+      <h3 onclick="accordion('Boost')" style="cursor: pointer;"> Boost </h3>
+      <div id="Boost" class="w3-hide w3-show">
+        <div title="Boost duty cycle">
+          <label for="boost_duty_cycle"> Boost duty cycle </label>
+          <input type="range" id="boost_duty_cycle" name="boost_duty_cycle" min="0" max="100" value="%d"
+            onchange="onInputEvent(event)">
+        </div>
+        <div class="w3-bar w3-margin-top" title="Boost for this many minutes">
+          <input type="button" class="w3-button w3-border w3-light-gray" style="width:32%;" name="button" value="10 Min"
+            onclick="onButtonClick(event)">
+          <input type="button" class="w3-button w3-border w3-light-gray" style="width:32%;" name="button" value="20 Min"
+            onclick="onButtonClick(event)">
+          <input type="button" class="w3-button w3-border w3-light-gray" style="width:32%;" name="button" value="30 Min"
+            onclick="onButtonClick(event)">
+        </div>
+        <div class="w3-bar w3-margin-bottom w3-margin-top">
+          <span id="boost_minutes_remaining" class="w3-bar-item"> 0 minutes left </span>
+          <input class="w3-button w3-border w3-light-gray w3-right" id="stop" name="button" type="button" value="Stop"
+            onclick="onButtonClick(event)">
+        </div>
+      </div>
+    </div>
+
+    <div class="w3-panel w3-border">
+      <h3 onclick="accordion('Settings')" style="cursor: pointer;"> Settings </h3>
+      <div id="Settings" class="w3-hide">
+        <label class="w3-margin-bottom" for="start_duty_cycle"> Start duty cycle </label>
+        <input class="w3-input w3-border" id="start_duty_cycle" name="start_duty_cycle" type="number" min="0" max="100"
+          step="1" value="0" onchange="onInputEvent(event)"> %
+        <br>
+        <label class="w3-margin-bottom" for="end_duty_cycle"> End duty cycle </label>
+        <input class="w3-input w3-border" id="end_duty_cycle" name="end_duty_cycle" type="number" min="0" max="100"
+          step="1" value="0" onchange="onInputEvent(event)"> %
+        <br>
+        <label class="w3-margin-bottom" for="temp_fan_on"> Temp fan on </label>
+        <input class="w3-input w3-border" id="temp_fan_on" name="temp_fan_on" type="number" min="0" max="100" step="1"
+          value="0" onchange="onInputEvent(event)"> &#8451;
+        <br>
+        <label class="w3-margin-bottom" for="temp_fan_end"> Temp fan end </label>
+        <input class="w3-input w3-border" id="temp_fan_end" name="temp_fan_end" type="number" min="0" max="100" step="1"
+          value="0" onchange="onInputEvent(event)"> &#8451;
+        <br>
+        <label for="hysteresis"> Hysteresis </label>
+        <input class="w3-input w3-border w3-margin-bottom" id="hysteresis" name="hysteresis" type="number" min="0" max="100" step="1"
+          value="0" onchange="onInputEvent(event)"> &#8451;
+      </div>
+    </div>
+
+    <div class="w3-panel w3-border">
+      <h3 onclick="accordion('Advanced')" style="cursor: pointer;"> Advanced </h3>
+      <div id="Advanced" class="w3-hide w3-bar">
+        <span id="sensors"> 0 sensor(s) found </span>
+        <br>
+        <span id="sensor_status"> measurement inactive </span>
+        <br> <br>
+        <input type="button" class="w3-button w3-border w3-light-gray w3-margin-bottom w3-right" name="reset"
+          value="Reset" onclick="onReset(event)">
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    "use strict";
+
+    function accordion(id) {
+      // Helper function to show or hide an accordion section
+      var x = document.getElementById(id);
+      if (x.className.indexOf("w3-show") == -1) {
+        x.className += " w3-show";
+      } else {
+        x.className = x.className.replace(" w3-show", "");
+      }
+    }
+
+    // Helper functions for fetch()
+    function validateResponse(response) {
+      if (!response.ok) {
+        return Promise.reject({
+          status: response.status,
+          statusText: response.statusText
+        });
+      }
+      return response;
+    }
+
+    function readResponseAsJSON(response) {
+      return response.json();
+    }
+
+    function readResponseAsBlob(response) {
+      return response.blob();
+    }
+
+    function readResponseAsText(response) {
+      return response.text();
+    }
+
+    function logError(error) {
+      console.log("fetch error:", error);
+    }
+
+    function statusRefresh() {
+      // Reload status information
+      fetch("/api/status")
+        .then(validateResponse)
+        .then(readResponseAsJSON)
+        .then(data => {
+          console.log("/api/status data:", data);
+          for (var key in data) {
+            try {
+              set_value(key, data[key]);
+            } catch (err) {
+              console.log(err.name, err.message, "on key", key);
+            }
+          }
+        })
+        .catch(logError);
+    }
+
+    function onReset() {
+      fetch("/api/reset")
+        .then(validateResponse)
+        .catch(logError);
+    }
+
+    function onInputEvent(event) {
+      // Send changed settings to the server
+      var element = event.target;
+      fetch("/api/set?".concat(element.name, "=", element.value))
+        .then(validateResponse)
+        .then(readResponseAsJSON)
+        .then(data => {
+          console.log("/api/set data:", data);
+        })
+        .catch(logError);
+    }
+
+    function onButtonClick(event) {
+      // Send button command to server
+      var element = event.target;
+      fetch("/api/click?".concat(element.name, "=", element.value))
+        .then(validateResponse)
+        .then(readResponseAsJSON)
+        .then(data => {
+          console.log("/api/click data:", data);
+        })
+        .catch(logError);
+      if (element.name == "button") {
+        // remaining minutes has changed, so
+        // refresh remaining minutes immediately
+        statusRefresh();
+        // second refresh after small delay for updating duty cycle
+        // as the microcontroller needs some time to proces the button click
+        setTimeout(() => { statusRefresh(); }, 5000);
+      }
+    }
+
+    function onLoadEvent() {
+      // Load initial data
+      fetch("/api/init")
+        .then(validateResponse)
+        .then(readResponseAsJSON)
+        .then(data => {
+          console.log("/api/init data:", data);
+          for (var key in data) {
+            try {
+              set_value(key, data[key]);
+            } catch (err) {
+              console.log(err.name, err.message, "on key", key);
+            }
+          }
+        })
+        .catch(logError);
+
+      // Refresh status every 30 seconds
+      setInterval(statusRefresh, 30000);
+    }
+
+    function set_value(key, value) {
+      var element = document.getElementById(key);
+      if (element != null) {
+        if (element.nodeName == "SPAN") {
+          // span does not have .value attribute
+          element.textContent = value;
+        } else {
+          element.value = value;
         }
-        return response;
       }
+    }
 
-      function readResponseAsJSON(response) {
-        return response.json();
-      }
+    window.onload = onLoadEvent();
+  </script>
+</body>
 
-      function readResponseAsBlob(response) {
-        return response.blob();
-      }
-
-      function readResponseAsText(response) {
-        return response.text();
-      }
-
-      function logError(error) {
-        console.log("fetch error:", error);
-      }
-
-      function statusRefresh() {
-        // Reload status information
-        fetch("/api/status")
-          .then(validateResponse)
-          .then(readResponseAsJSON)
-          .then(data => {
-            console.log("/api/status data:", data);
-            for (var key in data) {
-              document.getElementById(key).value = data[key];
-            }
-          })
-          .catch(logError);
-      }
-
-      function onReset() {
-        fetch("/api/reset")
-          .then(validateResponse)
-          .catch(logError);
-      }
-
-      function onInputEvent(event) {
-        // Send changed settings to the server
-        var element = event.target;
-        fetch("/api/set?".concat(element.name, "=", element.value))
-          .then(validateResponse)
-          .then(readResponseAsJSON)
-          .then(data => {
-            console.log("/api/set data:", data);
-          })
-          .catch(logError);
-      }
-
-      function onLoadEvent() {
-        // Load initial data
-        fetch("/api/init")
-          .then(validateResponse)
-          .then(readResponseAsJSON)
-          .then(data => {
-            console.log("/api/init data:", data);
-            for (var key in data) {
-              document.getElementById(key).value = data[key];
-            }
-          })
-          .catch(logError);
-
-        // Refresh status every 30 seconds
-        setInterval(statusRefresh, 30000);
-      }
-
-      window.onload = onLoadEvent();
-    </script>
-  </body>
 </html>
