@@ -19,7 +19,7 @@ The user interface can be found in *index.html*. It consist of four collapsible 
 
 Interaction with the server is done using JavaScript's fetch API. After loading the webpage all fields in the UI are initially filled after a call to /api/init (see *onLoadEvent()*). Every 30 seconds the status fields are refreshed (*setInterval()*) with a call to /api/status. After changing one of the settings fields its new value is sent to the server via /api/set. Every interaction with the server expects a JSON response, except when calling /api/reset or /api/stop.
 
-![ui.png](https://github.com/erikdelange/WiPy-2.0-Temperature-Controlled-Fan/blob/master/ui.png?)
+![ui.png](https://github.com/erikdelange/WiPy-2.0-Temperature-Controlled-Fan/blob/master/ui.png)
 
 Use F12 on Chrome and have a look the messages printed in the console.
 
