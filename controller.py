@@ -13,7 +13,8 @@ import machine
 import uasyncio as asyncio
 
 import config
-from ahttpserver import (CRLF, MimeType, ResponseHeader, Server, StatusLine, sendfile)
+from ahttpserver import (Server, sendfile)
+from ahhtpserver.response import (CRLF, MimeType, ResponseHeader, StatusLine)
 from fan import FanController
 from sensor import Sensor
 from wipy2 import color, rgbled
