@@ -13,8 +13,8 @@ import machine
 import uasyncio as asyncio
 
 import config
-from ahttpserver import (Server, sendfile)
-from ahhtpserver.response import (CRLF, MimeType, ResponseHeader, StatusLine)
+from ahttpserver import Server, sendfile
+from ahttpserver.response import CRLF, MimeType, ResponseHeader, StatusLine
 from fan import FanController
 from sensor import Sensor
 from wipy2 import color, rgbled
@@ -83,7 +83,7 @@ async def api_set(reader, writer, request):
     writer.write(MimeType.APPLICATION_JSON)
     writer.write(CRLF)
     await writer.drain()
-    parameters = request["parameters"]
+    parameters = request.parameters
     if "start_duty_cycle" in parameters:
         fan.start_duty_cycle = int(parameters["start_duty_cycle"])
     if "end_duty_cycle" in parameters:
@@ -106,7 +106,7 @@ async def api_button_low(reader, writer, request):
     writer.write(MimeType.APPLICATION_JSON)
     writer.write(CRLF)
     await writer.drain()
-    parameters = request["parameters"]
+    parameters = request.parameters
     if "button" in parameters:
         value = parameters["button"]
         if value == "10%20Min":
@@ -167,14 +167,14 @@ async def check_sensors_task():
             rgbled.color = color.BLUE
         else:
             rgbled.color = color.GREEN
-        await asyncio.sleep(1)       
+        await asyncio.sleep(1)
 
 async def free_memory_task():
     while True:
         gc.collect()
         gc.threshold(gc.mem_free() // 4 + gc.mem_alloc())
-        await asyncio.sleep(5)       
-        
+        await asyncio.sleep(5)
+
 try:
     def handle_exception(loop, context):
         # uncaught exceptions end up here

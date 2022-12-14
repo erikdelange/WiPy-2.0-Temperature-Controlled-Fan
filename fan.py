@@ -30,7 +30,7 @@ class FanController:
         """Create fan controller and start the controller task
 
         :param Sensor sensor: object connecting to the temperature sensor(s)
-        :param int pin: output pin number of the PWM contoller
+        :param int pin: output pin number of the PWM controller
         """
         self._pwm = PWM(Pin(pin), freq=25000, duty_u16=FanController.MAX_DUTY_U16)
 

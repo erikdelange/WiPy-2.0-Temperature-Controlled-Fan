@@ -49,7 +49,7 @@ class Sensor:
             asyncio.create_task(self._run())
 
     async def _run(self):
-        """Measurement task continously updating Sensor.temp_xxx variables
+        """Measurement task continuously updating Sensor.temp_xxx variables
 
         In case of a onewire error - for example because the connection to the
         sensors was cut - tries to restart measurements. After MAX_STALE_ERRORS
