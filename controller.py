@@ -13,8 +13,7 @@ import machine
 import uasyncio as asyncio
 
 import config
-from ahttpserver import Server, sendfile
-from ahttpserver.response import CRLF, MimeType, ResponseHeader, StatusLine
+from ahttpserver import HTTPResponse, HTTPServer, sendfile
 from fan import FanController
 from sensor import Sensor
 from wipy2 import color, rgbled
@@ -29,36 +28,27 @@ sensor = Sensor(config.DS_PIN)
 fan = FanController(sensor, config.PWM_PIN)
 
 # User interface
-app = Server()
+app = HTTPServer()
 
 
 @app.route("GET", "/")
 async def root(reader, writer, request):
-    writer.write(StatusLine.OK_200)
-    writer.write(ResponseHeader.CONNECTION_CLOSE)
-    writer.write(MimeType.TEXT_HTML)
-    writer.write(CRLF)
-    await writer.drain()
+    response = HTTPResponse(200, "text/html", close=True)
+    await response.send(writer)
     await sendfile(writer, "index.html")
 
 
 @app.route("GET", "/favicon.ico")
 async def favicon(reader, writer, request):
-    writer.write(StatusLine.OK_200)
-    writer.write(ResponseHeader.CONNECTION_CLOSE)
-    writer.write(MimeType.IMAGE_X_ICON)
-    writer.write(CRLF)
-    await writer.drain()
+    response = HTTPResponse(200, "image/x-icon", close=True)
+    await response.send(writer)
     await sendfile(writer, "favicon.ico")
 
 
 @app.route("GET", "/api/init")
 async def api_init(reader, writer, request):
-    writer.write(StatusLine.OK_200)
-    writer.write(ResponseHeader.CONNECTION_CLOSE)
-    writer.write(MimeType.APPLICATION_JSON)
-    writer.write(CRLF)
-    await writer.drain()
+    response = HTTPResponse(200, "application/json", close=True)
+    await response.send(writer)
     values = dict()
     values["temp_in"] = sensor.temp_in
     values["temp_out"] = sensor.temp_out
@@ -78,11 +68,8 @@ async def api_init(reader, writer, request):
 
 @app.route("GET", "/api/set")
 async def api_set(reader, writer, request):
-    writer.write(StatusLine.OK_200)
-    writer.write(ResponseHeader.CONNECTION_CLOSE)
-    writer.write(MimeType.APPLICATION_JSON)
-    writer.write(CRLF)
-    await writer.drain()
+    response = HTTPResponse(200, "application/json", close=True)
+    await response.send(writer)
     parameters = request.parameters
     if "start_duty_cycle" in parameters:
         fan.start_duty_cycle = int(parameters["start_duty_cycle"])
@@ -101,11 +88,8 @@ async def api_set(reader, writer, request):
 
 @app.route("GET", "/api/click")
 async def api_button_low(reader, writer, request):
-    writer.write(StatusLine.OK_200)
-    writer.write(ResponseHeader.CONNECTION_CLOSE)
-    writer.write(MimeType.APPLICATION_JSON)
-    writer.write(CRLF)
-    await writer.drain()
+    response = HTTPResponse(200, "application/json", close=True)
+    await response.send(writer)
     parameters = request.parameters
     if "button" in parameters:
         value = parameters["button"]
@@ -122,11 +106,8 @@ async def api_button_low(reader, writer, request):
 
 @app.route("GET", "/api/status")
 async def api_status(reader, writer, request):
-    writer.write(StatusLine.OK_200)
-    writer.write(ResponseHeader.CONNECTION_CLOSE)
-    writer.write(MimeType.APPLICATION_JSON)
-    writer.write(CRLF)
-    await writer.drain()
+    response = HTTPResponse(200, "application/json", close=True)
+    await response.send(writer)
     values = dict()
     values["temp_in"] = sensor.temp_in
     values["temp_out"] = sensor.temp_out
@@ -141,20 +122,16 @@ async def api_status(reader, writer, request):
 
 @app.route("GET", "/api/reset")
 async def api_reset(reader, writer, request):
-    writer.write(StatusLine.OK_200)
-    writer.write(ResponseHeader.CONNECTION_CLOSE)
-    writer.write(CRLF)
-    await writer.drain()
+    response = HTTPResponse(200, close=True)
+    await response.send(writer)
     await asyncio.sleep_ms(250)
     machine.reset()
 
 
 @app.route("GET", "/api/stop")
 async def stop(reader, writer, request):
-    writer.write(StatusLine.OK_200)
-    writer.write(ResponseHeader.CONNECTION_CLOSE)
-    writer.write(CRLF)
-    await writer.drain()
+    response = HTTPResponse(200, close=True)
+    await response.send(writer)
     raise(KeyboardInterrupt)
 
 
